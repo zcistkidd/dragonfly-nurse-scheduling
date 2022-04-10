@@ -1,0 +1,6 @@
+PrevShiftID,CurrentShiftID,Length in mins,Weight
+D,E,480,9999999999
+L,D,480,9999999999
+L,E,480,9999999999
+E,L,480,0
+
