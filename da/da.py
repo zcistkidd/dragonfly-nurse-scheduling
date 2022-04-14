@@ -50,8 +50,11 @@ def _get_radius(i, maxi, lbd, ubd):
     return (ubd - lbd) * (0.25 + ((2.0 * i)/maxi))
 
 
-def _random_population(lbd, ubd, n):
-    return np.random.random((n, lbd.size)) * (ubd - lbd) + lbd
+def _random_population(lbd,choices=[-1,0,1,2],n=12 ):
+    #return a n*lbd(row*col) size matrix with every element in [0,ubd)
+    # will need to change to discrete
+    # return np.random.random((n, lbd.size)) * (ubd - lbd) + lbd
+    return np.random.choice(choices,(n, lbd.size))
 
 
 def _get_neighbours_matrix(pos, radius, agents):
@@ -82,11 +85,16 @@ def _border_reflection(pos, lbd, ubd):
 
 
 def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variable_param, plot=True):
+    ###OFF=-1,D = 0, E = 1, L=2
+    ###lbd = -1 * np.ones(dim)
+    ###upd = 2 * np.ones(dim)
+    ##agents for currrent instance = 12
+    ##dim = num of days in dataset = 14
     dim = lbd.shape[0]
     x_shape = (agents, agents, dim)
     n_shape = (agents, agents, 1)
 
-    vel_max = (ubd - lbd)/10.0
+    vel_max = (ubd - lbd)/10.0# same length as upper bound
     pos = _random_population(lbd, ubd, agents)
     vel = _random_population(lbd, ubd, agents)
     ## caculate the cost of each agents
