@@ -97,10 +97,11 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
     vel_max = (ubd - lbd)/10.0# same length as upper bound
     pos = _random_population(lbd)
     vel = _random_population(lbd)
+    #TODO pos and vel validation to check if hard constraints are voilated from Shufei
     ## caculate the cost of each agents
-    values = function(pos)
+    values = function(pos)    #TODO Custom Cost Function to implemented by Yuhan
     function_cnt = agents
-    ## Select current round min value index as food source?
+    ## Select current round min value index as food source
     min_value_ind = np.argmin(values)
     min_pos = pos[min_value_ind, :]
     min_value = values[min_value_ind]
