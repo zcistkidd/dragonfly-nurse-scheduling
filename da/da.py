@@ -81,7 +81,7 @@ def _border_reflection(pos, lbd, ubd):
     return pos
 
 
-def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variable_param, plot=True, goal=0.0):
+def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variable_param, plot=True):
     dim = lbd.shape[0]
     x_shape = (agents, agents, dim)
     n_shape = (agents, agents, 1)
@@ -176,9 +176,6 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
             min_value_ind, min_value, min_pos[:] = act_min_ind, act_min, pos[act_min_ind, :]
         min_result[i] = min_value
 
-        if np.abs(min_value - goal) < _eps:
-            # Early stopping after goal error is
-            break
 
     if plot:
         # for i in range(values_matrix.shape[1]):
