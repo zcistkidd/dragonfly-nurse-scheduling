@@ -18,7 +18,7 @@ df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
 
 
 def costCalculator():
-    cost = cover() + shiftOffRequest()  + shiftOnRequest();
+    cost = cover() + shiftOffRequest() + shiftOnRequest();
     return cost;
 
 def cover():
@@ -72,9 +72,9 @@ def shiftOnRequest():
         day = row['Day']
         shift = row['ShiftID_num']
 
-        # check with nurse schedule to see if there is a day off as requested
+        # check with nurse schedule to see if there is a shift as requested
         nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
-        if nurse[day] != shift:
+        if nurse[day] != shift: # nurse['day']?? how to get the specified column
             shift_on_cost = shift_on_cost + 1
 
     return shift_on_cost;
