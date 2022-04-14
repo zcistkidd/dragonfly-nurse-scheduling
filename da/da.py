@@ -95,8 +95,8 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
     n_shape = (agents, agents, 1)
 
     vel_max = (ubd - lbd)/10.0# same length as upper bound
-    pos = _random_population(lbd, ubd, agents)
-    vel = _random_population(lbd, ubd, agents)
+    pos = _random_population(lbd)
+    vel = _random_population(lbd)
     ## caculate the cost of each agents
     values = function(pos)
     function_cnt = agents
