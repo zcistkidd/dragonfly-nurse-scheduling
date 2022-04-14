@@ -109,7 +109,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
     enemy_ind = np.argmax(values)
     enemy_pos = pos[enemy_ind, :]
     enemy_val = values[enemy_ind]
-
+    # Placeholder init prior to iteration
     iter_x = np.arange(iteration-1)
     results = np.zeros(iteration-1)
     mean = np.zeros(iteration-1)
@@ -123,6 +123,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         enemy_ind_act = np.argmax(values)
         enemy_pos_act = pos[enemy_ind_act, :]
         enemy_val_act = values[enemy_ind_act]
+        #TODO Should reconsider if we wanna keep enemey the same if it has highest cost or refresh every round
         if enemy_val_act > enemy_val:
             enemy_val, enemy_pos[:] = enemy_val_act, enemy_pos_act[:]
 
