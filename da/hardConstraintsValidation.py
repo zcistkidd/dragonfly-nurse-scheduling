@@ -17,6 +17,7 @@ df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
 # 5
 # 6
 
+
 def days_off_validation():
     days_off__reader = csv.DictReader(df_days_off)
     for row in days_off__reader:
@@ -25,11 +26,11 @@ def days_off_validation():
 
         # check with nurse schedule
         nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
-        # what is shiftID for Off shift?
-        if nurse[day_off] != day_off_ID:
+        if nurse[day_off] != -1:
             return 0
-
     return 1
+
+def
 
 
 def staff_validation():
