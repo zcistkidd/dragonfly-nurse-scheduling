@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn import preprocessing
 #TODO coordinate with Chi to finalise all csv files to use numerized values
 df_cover = pd.read_csv("data/SECTION_COVER.csv")# soft
-df_shift_off = pd.read_csv("data/SECTION_SHIFT_OFF_REQUESTS.csv")# soft
+df_shift_off = pd.read_csv("./data/SECTION_SHIFT_OFF_REQUESTS.csv")# soft
 df_shift_on = pd.read_csv("data/SECTION_SHIFT_ON_REQUESTS.csv")# soft
 # df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
 
@@ -18,9 +18,10 @@ df_shift_on = pd.read_csv("data/SECTION_SHIFT_ON_REQUESTS.csv")# soft
   # 6
 
 
+
 def costCalculator(df_nurse_schedule):
     cost = cover(df_nurse_schedule) \
-           + shiftOffRequest(df_nurse_schedule)\
+           + shiftOffRequest(df_nurse_schedule) \
            + shiftOnRequest(df_nurse_schedule);
     return cost;
 
@@ -105,7 +106,6 @@ def main():
                     [3,3,3,3,3,3,3,3,3,3,3,3,3,3]])
     cost = costCalculator(res)
     print(cost)
-
 
 if __name__ == "__main__":
     main()
