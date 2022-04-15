@@ -1,4 +1,6 @@
 # take in an array??
+from numpy import array
+
 
 def check_schedule:
     if array[0] == 4:

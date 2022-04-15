@@ -104,5 +104,6 @@ def main():
     cost = costCalculator(res)
     print(cost)
 
+
 if __name__ == "__main__":
     main()
