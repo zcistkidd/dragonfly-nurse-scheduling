@@ -1,10 +1,11 @@
 import csv
 
+import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
 df_cover = pd.read_csv("data/SECTION_COVER.csv")# soft
-df_shift_off = pd.read_csv("data/SECTION_SHIFT_OFF_REQUESTS.csv")# soft
+df_shift_off = pd.read_csv("./data/SECTION_SHIFT_OFF_REQUESTS.csv")# soft
 df_shift_on = pd.read_csv("data/SECTION_SHIFT_ON_REQUESTS.csv")# soft
 df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
 
@@ -17,8 +18,15 @@ df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
   # 6
 
 
+<<<<<<< Updated upstream
 def costCalculator():
     cost = cover() + shiftOffRequest() + shiftOnRequest();
+=======
+def costCalculator(df_nurse_schedule):
+    cost = cover(df_nurse_schedule) \
+           + shiftOffRequest(df_nurse_schedule) \
+           + shiftOnRequest(df_nurse_schedule);
+>>>>>>> Stashed changes
     return cost;
 
 def cover():
@@ -75,6 +83,20 @@ def shiftOnRequest():
         # check with nurse schedule to see if there is a shift as requested
         nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
         if nurse[day] != shift: # nurse['day']?? how to get the specified column
+<<<<<<< Updated upstream
             shift_on_cost = shift_on_cost + 1
+=======
+            shift_on_cost_total = shift_on_cost_total + 1
+            shift_on_cost_each_vector.append(1)
+
+    return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
+
+def main():
+    res = np.array([[3,3,3],[3,3,3],[3,3,3]])
+    cost = costCalculator(res)
+
+
+
+>>>>>>> Stashed changes
 
     return shift_on_cost;
