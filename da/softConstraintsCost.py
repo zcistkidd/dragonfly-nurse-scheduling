@@ -47,7 +47,8 @@ def cover(df_nurse_schedule):
         if count < row['Requirement']: # not enough nurse
             cover_cost_total = cover_cost_total + 100
             cover_cost_each_vector.append(100)
-    return pd.Series(cover_cost_each_vector), cover_cost_total
+    return cover_cost_total
+    # return pd.Series(cover_cost_each_vector), cover_cost_total
 
 
 def shiftOffRequest(df_nurse_schedule):
@@ -64,7 +65,8 @@ def shiftOffRequest(df_nurse_schedule):
         if nurse[day] == shift:
             shift_off_cost_total= shift_off_cost_total + 1
             shift_off_cost_each_vector.append(1)
-    return pd.Series(shift_off_cost_each_vector), shift_off_cost_total
+    return shift_off_cost_total
+    # return pd.Series(shift_off_cost_each_vector), shift_off_cost_total
 
 
 def shiftOnRequest(df_nurse_schedule):
@@ -82,7 +84,8 @@ def shiftOnRequest(df_nurse_schedule):
             shift_on_cost_total = shift_on_cost_total + 1
             shift_on_cost_each_vector.append(1)
 
-    return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
+    return shift_on_cost_total
+    # return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
 
 
 def main():

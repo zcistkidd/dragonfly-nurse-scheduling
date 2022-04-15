@@ -30,7 +30,6 @@ def days_off_validation():
             return 0
     return 1
 
-def
 
 
 def staff_validation():
