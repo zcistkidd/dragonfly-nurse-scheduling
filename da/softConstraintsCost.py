@@ -1,5 +1,6 @@
 import csv
 
+import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 #TODO coordinate with Chi to finalise all csv files to use numerized values
@@ -18,20 +19,21 @@ df_shift_on = pd.read_csv("data/SECTION_SHIFT_ON_REQUESTS.csv")# soft
 
 
 def costCalculator(df_nurse_schedule):
-    cost = cover() + shiftOffRequest() + shiftOnRequest();
+    cost = cover(df_nurse_schedule) \
+           + shiftOffRequest(df_nurse_schedule)\
+           + shiftOnRequest(df_nurse_schedule);
     return cost;
 
 def cover(df_nurse_schedule):
     cover_cost_total = 0;
     cover_cost_each_vector = []
-    cover_reader = csv.DictReader(df_cover)
-    for row in cover_reader:
+
+    for _, row in df_cover.iterrows():
         day = row['Day']  # get day and shiftID from constraint
         shift = row['ShiftID_num']
         # schedule_reader = csv.DictReader(df_nurse_schedule) # check with nurse schedule matrix
         schedule = df_nurse_schedule[:, [day]] # select specified day column, 1 columns, number of nurses = rows
         [rows, cols] = schedule.shape
-        print(rows, cols)
         count = 0
 
         for i in range(rows):
@@ -45,7 +47,6 @@ def cover(df_nurse_schedule):
         if count < row['Requirement']: # not enough nurse
             cover_cost_total = cover_cost_total + 100
             cover_cost_each_vector.append(100)
-    #TODO return a pandas series to represnet each nurse's cost
     return pd.Series(cover_cost_each_vector), cover_cost_total
 
 
@@ -53,7 +54,7 @@ def shiftOffRequest(df_nurse_schedule):
     shift_off_cost_total = 0
     shift_off_cost_each_vector= []
     shift_off_reader = csv.DictReader(df_shift_off)
-    for row in shift_off_reader:
+    for _, row in df_shift_off.iterrows():
         employee = row['EmployeeID_num']
         day = row['Day']
         shift = row['ShiftID_num']
@@ -67,10 +68,10 @@ def shiftOffRequest(df_nurse_schedule):
 
 
 def shiftOnRequest(df_nurse_schedule):
-    shift_on_cost_total = 0;
+    shift_on_cost_total = 0
     shift_on_cost_each_vector = []
     shift_on_reader = csv.DictReader(df_shift_on)
-    for row in shift_on_reader:
+    for _, row in df_shift_on.iterrows():
         employee = row['EmployeeID_num']
         day = row['Day']
         shift = row['ShiftID_num']
@@ -85,7 +86,23 @@ def shiftOnRequest(df_nurse_schedule):
 
 
 def main():
-    
+    res = np.array([[3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3],
+                    [3,3,3,3,3,3,3,3,3,3,3,3,3,3]])
+    cost = costCalculator(res)
+    print(cost)
+
 
 if __name__ == "__main__":
     main()
