@@ -92,3 +92,29 @@ def count_consec(array, start, sign):
 
 def shift_validation():
     return True
+
+
+# def cover(df_nurse_schedule):
+#     cover_cost_total = 0;
+#     cover_cost_each_vector = []
+#
+#     for _, row in df_cover.iterrows():
+#         day = row['Day']  # get day and shiftID from constraint
+#         shift = row['ShiftID_num']
+#         # schedule_reader = csv.DictReader(df_nurse_schedule) # check with nurse schedule matrix
+#         schedule = df_nurse_schedule[:, [day]] # select specified day column, 1 columns, number of nurses = rows
+#         [rows, cols] = schedule.shape
+#         count = 0
+#
+#         for i in range(rows):
+#             for j in range(cols):
+#                 if schedule[i,j] == shift:
+#                     count = count + 1
+#
+#         if count > row['Requirement']: # more nurse than we needed
+#             cover_cost_total = cover_cost_total + 1
+#             cover_cost_each_vector.append(1)
+#         if count < row['Requirement']: # not enough nurse
+#             cover_cost_total = cover_cost_total + 100
+#             cover_cost_each_vector.append(100)
+#     return pd.Series(cover_cost_each_vector), cover_cost_total
