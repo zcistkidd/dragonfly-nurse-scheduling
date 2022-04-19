@@ -5,7 +5,7 @@ import pandas as pd
 from sklearn import preprocessing
 
 # TODO coordinate with Chi to finalise all csv files to use numerized values
-df_cover = pd.read_csv("data/SECTION_COVER.csv")  # soft
+
 df_shift_off = pd.read_csv("./data/SECTION_SHIFT_OFF_REQUESTS.csv")  # soft
 df_shift_on = pd.read_csv("data/SECTION_SHIFT_ON_REQUESTS.csv")  # soft
 
