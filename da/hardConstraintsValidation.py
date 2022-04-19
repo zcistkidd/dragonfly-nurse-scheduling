@@ -10,9 +10,7 @@ df_shift = pd.read_csv("./data/SECTION_SHIFTS.csv")
 df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
 df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 
-
 # df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
-
 
 #   D1 D2 D3 D4 D5 ... D14
 # 1  0  1 2  0  2       1
@@ -157,7 +155,6 @@ def cover_validation(nurse_schedule):
 
         if count <= row['Requirement']:  # not enough nurse
             return False
-
     return True
 
 
@@ -205,7 +202,6 @@ if __name__ == "__main__":
 #             for j in range(cols):
 #                 if schedule[i,j] == shift:
 #                     count = count + 1
-#
 #         if count > row['Requirement']: # more nurse than we needed
 #             cover_cost_total = cover_cost_total + 1
 #             cover_cost_each_vector.append(1)
