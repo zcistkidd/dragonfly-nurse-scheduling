@@ -13,8 +13,9 @@ def _levy(dim, n):
     r2 = np.random.normal(size=(n, dim))
     return 100 * ((r1 * _sigma) / np.power(np.abs(r2), 1.0 / _beta))
 
+
 def dummy_cost(df):
-    return df.sum(axis = 1)
+    return df.sum(axis=1)
 
 
 def _variable_param(i, maxi, agents=1):
@@ -52,14 +53,14 @@ def variable_plot(param_fun, maxi, n):
 
 
 def _get_radius(i, maxi, lbd, ubd):
-    return np.ceil((ubd - lbd) * (0.25 + ((2.0 * i)/maxi)))
+    return np.ceil((ubd - lbd) * (0.25 + ((2.0 * i) / maxi)))
 
 
-def _random_population(lbd,choices=[0,1,2,3],n=20 ):
-    #return a n*lbd(row*col) size matrix with every element in [0,ubd)
+def _random_population(lbd, choices=[0, 1, 2, 3], n=20):
+    # return a n*lbd(row*col) size matrix with every element in [0,ubd)
     # will need to change to discrete
     # return np.random.random((n, lbd.size)) * (ubd - lbd) + lbd
-    return np.random.choice(choices,(n, lbd.size))
+    return np.random.choice(choices, (n, lbd.size))
 
 
 def _get_neighbours_matrix(pos, radius, agents):
@@ -83,7 +84,7 @@ def _divide(l, m, default):
 
 def _border_reflection(pos, lbd, ubd):
     diff = ubd - lbd
-    f = np.floor(pos/diff - lbd/diff)
+    f = np.floor(pos / diff - lbd / diff)
     lm = (np.mod(f, 2.0) == 1.0).real * (ubd + lbd)
     pos = (pos - diff * f) * np.power(-1.0, f) + lm
     return pos
@@ -99,12 +100,12 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
     x_shape = (agents, agents, dim)
     n_shape = (agents, agents, 1)
 
-    vel_max = (ubd - lbd)/6.0# TODO Need tuning a bit to see if velocity will fit in discrete
+    vel_max = (ubd - lbd) / 6.0  # TODO Need tuning a bit to see if velocity will fit in discrete
     pos = _random_population(lbd)
     vel = _random_population(lbd)
-    #TODO pos and vel validation to check if hard constraints are voilated from Shufei
+    # TODO pos and vel validation to check if hard constraints are voilated from Shufei
     ## caculate the cost of each agents
-    values= function(pos)    #TODO Custom Cost Function to implemented by Yuhan
+    values = function(pos)  # TODO Custom Cost Function to implemented by Yuhan
     function_cnt = agents
     ## Select current round min value index as food source
     min_value_ind = np.argmin(values)
@@ -115,21 +116,21 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
     enemy_pos = pos[enemy_ind, :]
     enemy_val = values[enemy_ind]
     # Placeholder init prior to iteration
-    iter_x = np.arange(iteration-1)
-    agent_results = np.zeros(iteration-1)
-    mean = np.zeros(iteration-1)
-    min_result = np.zeros(iteration-1)
-    mean_vel = np.zeros(iteration-1)
-    values_matrix = np.zeros((iteration-1, agents))
+    iter_x = np.arange(iteration - 1)
+    agent_results = np.zeros(iteration - 1)
+    mean = np.zeros(iteration - 1)
+    min_result = np.zeros(iteration - 1)
+    mean_vel = np.zeros(iteration - 1)
+    values_matrix = np.zeros((iteration - 1, agents))
     pos_res = []
-    results = np.zeros(iteration-1)
-    for i in range(iteration-1):
+    results = np.zeros(iteration - 1)
+    for i in range(iteration - 1):
         # Update the food source and enemy
         food_pos = min_pos[:]
         enemy_ind_act = np.argmax(values)
         enemy_pos_act = pos[enemy_ind_act, :]
         enemy_val_act = values[enemy_ind_act]
-        #TODO Should reconsider if we wanna keep enemey the same if it has highest cost or refresh every round
+        # TODO Should reconsider if we wanna keep enemey the same if it has highest cost or refresh every round
         if enemy_val_act > enemy_val:
             enemy_val, enemy_pos[:] = enemy_val_act, enemy_pos_act[:]
 
@@ -153,11 +154,11 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         neighbours_cnt_eq_0, _ = np.where(neighbours_cnt == 0)
         neighbours_cnt_gt_0, _ = np.where(neighbours_cnt > 0)
 
-        separation = np.sum((pos - p_matrix) * n_matrix, 0)                         # Eq. 3.1
-        alignment = _divide(np.sum(v_matrix * n_matrix, 0), neighbours_cnt, vel)         # Eq. 3.2
-        cohesion = _divide(np.sum(p_matrix * n_matrix, 0), neighbours_cnt, pos) - pos    # Eq. 3.3
-        food = n_food * (food_pos - pos)                                     # Eq. 3.4
-        enemy = n_enemy * (enemy_pos + pos)                             # Eq. 3.5
+        separation = np.sum((pos - p_matrix) * n_matrix, 0)  # Eq. 3.1
+        alignment = _divide(np.sum(v_matrix * n_matrix, 0), neighbours_cnt, vel)  # Eq. 3.2
+        cohesion = _divide(np.sum(p_matrix * n_matrix, 0), neighbours_cnt, pos) - pos  # Eq. 3.3
+        food = n_food * (food_pos - pos)  # Eq. 3.4
+        enemy = n_enemy * (enemy_pos + pos)  # Eq. 3.5
 
         # Update velocity and position
         vel = vel * w + separation * s + alignment * a + cohesion * c + food * f + enemy * e  # Eq. 3.6
@@ -166,23 +167,30 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         # vel[vg_max_y, vg_max_x] = vel_max[vg_max_x]
         # vel[vl_min_y, vl_min_x] = -vel_max[vl_min_x]
 
+        # round down / round up
+        # vel = np.ceil(vel * 50)
+        vel = np.ceil(vel)
 
-        vel = np.ceil(vel*50)
+
+        # random
+        # >3 -> 3; < 0 -> 0
         pos = pos.astype("float64")
 
-        pos[neighbours_cnt_gt_0] += vel[neighbours_cnt_gt_0] # Eq. 3.7
+        pos[neighbours_cnt_gt_0] += vel[neighbours_cnt_gt_0]  # Eq. 3.7
         levy = _levy(dim, neighbours_cnt_eq_0.size)
-        # ampplify levy to a higher number range
-        pos[neighbours_cnt_eq_0]+= np.ceil(pos[neighbours_cnt_eq_0] * levy*100) # Eq. 3.8
+        # amplify levy to a higher number range
+        pos[neighbours_cnt_eq_0] += np.ceil(pos[neighbours_cnt_eq_0] * levy * 100)  # Eq. 3.8
 
         # # Check and correct the new positions based on the boundaries of variables
         # vel[np.where(pos < lbd)] *= -1
         # vel[np.where(pos > ubd)] *= -1
         # pos = _border_reflection(pos, lbd, ubd)
-        #Map all res to [0,1,2,3]
+        # Map all res to [0,1,2,3]
 
         pos = np.ceil(pos).astype("int32")
-        pos = pos % 4
+        map(lambda x: x if 3 >= x >= 0 else (0 if x < 0 else 3), pos)
+
+        # pos = pos % 4
 
         # Prepare to next iteration, save data
         values = function(pos)
@@ -201,7 +209,6 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         if act_min < min_value:
             min_value_ind, min_value, min_pos[:] = act_min_ind, act_min, pos[act_min_ind, :]
         min_result[i] = min_value
-
 
     if plot:
         # for i in range(values_matrix.shape[1]):
@@ -225,7 +232,6 @@ def main():
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
     dragonfly_algorithm(dummy_cost, agents, lbd, upd, iteration)
-
 
 if __name__ == "__main__":
     main()
