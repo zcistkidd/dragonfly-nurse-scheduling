@@ -69,7 +69,8 @@ def _population(lbd, choices=[0, 1, 2, 3]):
     init_pos = []
     for i in range(0, 20):
         pos = np.random.choice(choices, (1, lbd.size))
-        while not schedule_validation(pos, i):
+        print(pos)
+        while not schedule_validation(pos[0], i):
             pos = np.random.choice(choices, (1, lbd.size))
         init_pos.append(pos)
     return init_pos

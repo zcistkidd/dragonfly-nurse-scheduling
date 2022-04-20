@@ -137,6 +137,25 @@ def count_consecutive_working_days(array, start):
     return counter
 
 
+def cover_hard(nurse_schedule):
+    for dayIndex in range(len(nurse_schedule[0])): # 0 -13
+        day_schedule = nurse_schedule[:, [dayIndex]]
+        day = 0
+        evening = 0
+        late = 0
+        for nurse in day_schedule:
+            if nurse == 0:
+                day += 1
+            if nurse == 1:
+                evening += 1
+            if nurse == 2:
+                late += 1
+        if day == 0 or evening == 0 or late == 0:
+            return False
+
+    return True
+
+
 # def cover_validation(nurse_schedule):
 #     for _, row in df_cover.iterrows():
 #         day = row['Day']  # get day and shiftID from constraint
