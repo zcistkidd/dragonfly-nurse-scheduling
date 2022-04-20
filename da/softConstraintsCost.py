@@ -33,7 +33,8 @@ def costCalculator(df_nurse_schedule):
     # offcost,totaloffcost = shiftOffRequest(df_nurse_schedule, nurse_cost)
     # oncost, totaloncost = shiftOnRequest(df_nurse_schedule, nurse_cost)
     total_cost = shiftOffRequest(df_nurse_schedule, nurse_cost) + \
-                 shiftOnRequest(df_nurse_schedule, nurse_cost)
+                 shiftOnRequest(df_nurse_schedule, nurse_cost) + \
+                cover(df_nurse_schedule, nurse_cost)
     # cost =  offcost.add(oncost)
     cost = convertNurseCost(nurse_cost)
     return cost, total_cost;

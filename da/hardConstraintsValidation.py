@@ -11,6 +11,7 @@ df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
 df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 
 
+
 def hard_constraints_validation(nurse_schedule):
     # nurse_schedule: matrix
     # if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule) and cover_validation(nurse_schedule):
@@ -30,7 +31,6 @@ def days_off_validation(nurse_schedule):
         if nurse[day_off] != 3:
             return False
     return True
-
 
 # Check min/max minutes, weekends, shifts, consecutive days off and working days
 def staff_validation(nurse_schedule):
