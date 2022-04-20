@@ -21,7 +21,7 @@ def days_off_validation(nurse_schedule, nurseID):
 
         # check with nurse schedule
         if employee == nurseID:
-            if nurse_schedule[day_off] != 3:
+            if nurse_schedule[nurseID][day_off] != 3:
                 return False
     return True
 
@@ -42,8 +42,8 @@ def staff_validation(nurse_schedule, nurseID):
     for i in range(0, number_of_days - 1):
         # round to int?
         # nurse[i + 1] = round(nurse[i + 1])
-        prev = nurse[i]
-        current = nurse[i + 1]
+        prev = nurse[0][i]
+        current = nurse[0][i + 1]
 
         # D-0 E-1 L-2 O-3
         # Check if min consecutive day off <= 2
@@ -53,7 +53,7 @@ def staff_validation(nurse_schedule, nurseID):
                     # counter = count_consec(array, i + 1, 4)
                     if current == number_of_days - 1:
                         return False
-                    if nurse[current + 1] != 3:
+                    if nurse[0][current + 1] != 3:
                         return False
                     # if counter < 2:
                     #     return False
@@ -119,7 +119,7 @@ def staff_validation(nurse_schedule, nurseID):
 def count_consecutive_working_days(array, start):
     index = start  # current day index
     counter = 0
-    while array[index] != 3:
+    while array[0][index - 1] != 3:
         counter += 1
         index += 1
     return counter
