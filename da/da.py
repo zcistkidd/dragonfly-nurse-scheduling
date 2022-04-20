@@ -169,7 +169,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
 
         # round down / round up
         # vel = np.ceil(vel * 50)
-        vel = np.ceil(vel)
+        # vel = np.ceil(vel)
 
 
         # random
@@ -188,9 +188,8 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         # Map all res to [0,1,2,3]
 
         pos = np.ceil(pos).astype("int32")
-        map(lambda x: x if 3 >= x >= 0 else (0 if x < 0 else 3), pos)
 
-        # pos = pos % 4
+        pos = pos % 4
 
         # Prepare to next iteration, save data
         values = function(pos)
@@ -200,7 +199,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         act_min_ind = np.argmin(values)
         act_min = values[act_min_ind]
         agent_results[i] = act_min
-        results[i] = values.sum()
+        results[i] = sum(values)
         pos_res.append(pos)
         mean[i] = np.mean(values)
         mean_vel[i] = np.mean(np.sqrt(np.sum(np.power(vel, 2), 1)))
@@ -216,9 +215,9 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         plt.plot(iter_x, results, label="Optimum w iteracji")
         # plt.plot(iter_x, min_result, label="Optimum globalne")
         plt.legend(fontsize='medium')
-        plt.title("The evolution of a particle swarm")
-        plt.xlabel("The number of iterations")
-        plt.ylabel("The value of the function")
+        plt.title("Ewolucja roju czastek")
+        plt.xlabel("Liczba iteracji")
+        plt.ylabel("Wartosc funkcji")
         plt.savefig("evolution.png")
         plt.show()
 
@@ -228,10 +227,10 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
 def main():
     dim = 14
     agents = 20
-    iteration = 1000
+    iteration = 1000000
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
-    dragonfly_algorithm(dummy_cost, agents, lbd, upd, iteration)
+    dragonfly_algorithm(costCalculator, agents, lbd, upd, iteration)
 
 if __name__ == "__main__":
     main()

@@ -37,7 +37,7 @@ def costCalculator(df_nurse_schedule):
                 cover(df_nurse_schedule, nurse_cost)
     # cost =  offcost.add(oncost)
     cost = convertNurseCost(nurse_cost)
-    return cost, total_cost;
+    return cost
 
 
 def cover(nurse_schedule, nurse_cost):
@@ -88,6 +88,23 @@ def shiftOffRequest(df_nurse_schedule, nurse_cost):
 
 
 def shiftOnRequest(df_nurse_schedule, nurse_cost):
+    shift_on_cost_total = 0
+    shift_on_cost_each_vector = []
+    for _, row in df_shift_on.iterrows():
+        employee = row['EmployeeID_num']
+        day = row['Day']
+        shift = row['ShiftID_num']
+
+        # check with nurse schedule to see if there is a shift as requested
+        nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
+        if nurse[day] != shift:  # nurse['day']?? how to get the specified column
+            shift_on_cost_total = shift_on_cost_total + 1
+            nurse_cost[employee][day] = 1
+            shift_on_cost_each_vector.append(1)
+    # return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
+    return shift_on_cost_total
+
+def cover(df_nurse_schedule,nurse_cost):
     shift_on_cost_total = 0
     shift_on_cost_each_vector = []
     for _, row in df_shift_on.iterrows():
