@@ -57,14 +57,15 @@ def cover(nurse_schedule, nurse_cost):
         if count > row['Requirement']:  # more nurses than we needed
             # cover_cost_total = cover_cost_total + 1
             for j in current_shift_nurse:
-                nurse_cost[j][day] += 1.0 / count
+                nurse_cost[j][day] = nurse_cost[j][day] + (1.0 / count)
         if count < row['Requirement']:  # not enough nurse
             cover_cost_total = cover_cost_total + 100
             for j in nurse_cost:  # 0 - 19
                 if j in current_shift_nurse:
                     continue
                 else:
-                    nurse_cost[j][day] += 100.0 / (len(nurse_cost) - count)
+                    print(100.0 / (len(nurse_cost) - count))
+                    nurse_cost[j][day] = nurse_cost[j][day] + (100.0 / (len(nurse_cost) - count))
 
     return cover_cost_total
 

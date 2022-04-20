@@ -175,7 +175,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         # random
         # >3 -> 3; < 0 -> 0
         pos = pos.astype("float64")
-
+        pos = pos % 4
         pos[neighbours_cnt_gt_0] += vel[neighbours_cnt_gt_0]  # Eq. 3.7
         levy = _levy(dim, neighbours_cnt_eq_0.size)
         # amplify levy to a higher number range
