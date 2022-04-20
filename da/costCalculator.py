@@ -4,7 +4,7 @@ import pandas as pd
 # from numpy import array
 import numpy as np
 from sklearn import preprocessing
-from softConstraintsCost import  costCalculator
+
 
 df_days_off = pd.read_csv("./data/SECTION_DAYS_OFF.csv")
 df_shift = pd.read_csv("./data/SECTION_SHIFTS.csv")

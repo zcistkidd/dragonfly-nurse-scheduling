@@ -9,6 +9,10 @@ from sklearn import preprocessing
 df_shift_off = pd.read_csv("./data/SECTION_SHIFT_OFF_REQUESTS.csv")  # soft
 df_shift_on = pd.read_csv("data/SECTION_SHIFT_ON_REQUESTS.csv")  # soft
 df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
+df_days_off = pd.read_csv("./data/SECTION_DAYS_OFF.csv")
+df_shift = pd.read_csv("./data/SECTION_SHIFTS.csv")
+df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
+df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 
 
 #   D1 D2 D3 D4 D5 ... D14
@@ -34,15 +38,15 @@ def costCalculator(df_nurse_schedule):
     # oncost, totaloncost = shiftOnRequest(df_nurse_schedule, nurse_cost)
     total_cost = shiftOffRequest(df_nurse_schedule, nurse_cost) + \
                  shiftOnRequest(df_nurse_schedule, nurse_cost) + \
-                cover(df_nurse_schedule, nurse_cost)
+                 cover(df_nurse_schedule, nurse_cost)
     # cost =  offcost.add(oncost)
+    hard_constraints_validation(df_nurse_schedule, nurse_cost)
     cost = convertNurseCost(nurse_cost)
     return cost
 
 
 def cover(nurse_schedule, nurse_cost):
     cover_cost_total = 0;
-
     for _, row in df_cover.iterrows():
         day = row['Day']  # get day and shiftID from constraint
         shift = row['ShiftID_num']
@@ -57,15 +61,14 @@ def cover(nurse_schedule, nurse_cost):
         if count > row['Requirement']:  # more nurses than we needed
             # cover_cost_total = cover_cost_total + 1
             for j in current_shift_nurse:
-                nurse_cost[j][day] = nurse_cost[j][day] + (1.0 / count)
+                nurse_cost[j][day] += 1.0 / count
         if count < row['Requirement']:  # not enough nurse
             cover_cost_total = cover_cost_total + 100
             for j in nurse_cost:  # 0 - 19
                 if j in current_shift_nurse:
                     continue
                 else:
-                    print(100.0 / (len(nurse_cost) - count))
-                    nurse_cost[j][day] = nurse_cost[j][day] + (100.0 / (len(nurse_cost) - count))
+                    nurse_cost[j][day] += 100.0 / (len(nurse_cost) - count)
 
     return cover_cost_total
 
@@ -105,7 +108,8 @@ def shiftOnRequest(df_nurse_schedule, nurse_cost):
     # return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
     return shift_on_cost_total
 
-def cover(df_nurse_schedule,nurse_cost):
+
+def cover(df_nurse_schedule, nurse_cost):
     shift_on_cost_total = 0
     shift_on_cost_each_vector = []
     for _, row in df_shift_on.iterrows():
@@ -133,6 +137,133 @@ def convertNurseCost(nurse_cost):
         cost.append(temp)
 
     return cost
+
+
+def hard_constraints_validation(nurse_schedule, nurse_cost):
+    # nurse_schedule: matrix
+    # if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule) and cover_validation(nurse_schedule):
+    days_off_validation(nurse_schedule, nurse_cost)
+    staff_validation(nurse_schedule, nurse_cost)
+
+
+# Check if the approved day-off is scheduled with shift for each nurse
+def days_off_validation(nurse_schedule, nurse_cost):
+    for _, row in df_days_off.iterrows():
+        employee = row['EmployeeID_num']
+        day_off = row['DayIndexes(startatzero)']
+
+        # check with nurse schedule
+        nurse = nurse_schedule[employee]  # 1 row, 14 columns
+        if nurse[day_off] != 3:
+            nurse_cost[employee][day_off] += 99999999
+
+
+# Check min/max minutes, weekends, shifts, consecutive days off and working days
+def staff_validation(nurse_schedule, nurse_cost):
+    number_of_days = len(nurse_schedule[0])  # number of days
+
+    for j in range(0, len(nurse_schedule)):
+        nurse = nurse_schedule[j]
+        max_total_minutes = df_staff.at[j, 'MaxTotalMinutes']
+        # max_total_minutes = df_staff[j]['MaxTotalMinutes']
+        min_total_minutes = df_staff.at[j, 'MinTotalMinutes']
+        max_consecutive_shifts = df_staff.at[j, 'MaxConsecutiveShifts']
+        min_consecutive_shifts = df_staff.at[j, 'MinConsecutiveShifts']
+        min_consecutive_days_off = df_staff.at[j, 'MinConsecutiveDaysOff']
+        max_weekends = df_staff.at[j, 'MaxWeekends']
+        max_evening_shift = df_staff.at[j, 'MaxShifts_1']
+        max_day_shift = df_staff.at[j, 'MaxShifts_0']
+        max_late_shift = df_staff.at[j, 'MaxShifts_2']
+        for i in range(0, number_of_days - 1): # i: 0 - 12
+            # round to int?
+            # nurse[i + 1] = round(nurse[i + 1])
+            prev = nurse[i]
+            current = nurse[i + 1]
+
+            # D-0 E-1 L-2 O-3
+            # Check if min consecutive day off <= 2
+            if min_consecutive_days_off == 2:
+                if current == 3:
+                    if prev != 3:
+                        # counter = count_consec(array, i + 1, 4)
+                        if current == number_of_days - 1:
+                            nurse_cost[j][i] += 99999999
+                        if nurse[current + 1] != 3:
+                            nurse_cost[j][i] += 99999999
+                        # if counter < 2:
+                        #     return False
+
+            # Check L cannot be followed by anything other than O,
+            # Check D not followed by E
+            if (prev == 2 and current != 3) or (prev == 0 and current == 1):
+                nurse_cost[j][i] += 99999999
+
+            # Check Max consecutive shifts >= 2 && <= 5
+            if prev == 3 and current != 3:
+                counter = count_consecutive_working_days(nurse, i + 1)
+                if counter < min_consecutive_shifts \
+                        or counter > max_consecutive_shifts:
+                    nurse_cost[j][i] += 99999999
+
+        # Check working minutes
+        total_working_time = 0
+        for i in range(0, number_of_days):
+            if nurse[i] != 3:
+                total_working_time += 720
+
+        if total_working_time < min_total_minutes:
+            nurse_cost[j][i] += 99999999
+        if total_working_time > max_total_minutes:
+            nurse_cost[j][i] += 99999999
+
+        # Check max number of shifts
+        count_day = 0
+        count_evening = 0
+        count_late = 0
+        # D-0 E-1 L-2 O-3
+        for i in range(0, number_of_days):
+            if nurse[i] == 0:
+                count_day += 1
+                if count_day > max_day_shift:
+                    nurse_cost[j][i] += 99999999
+            if nurse[i] == 1:
+                count_evening += 1
+                if count_evening > max_evening_shift:
+                    nurse_cost[j][i] +=99999999
+            if nurse[i] == 2:
+                count_late += 1
+                if count_late > max_late_shift:
+                    nurse_cost[j][i] += 99999999
+
+        # Check max weekends
+        # index 5&6, 12&13,19&21, at least we have 7 days in matrix
+        current_Satuarday_index = 5
+        current_Sunday_index = 6
+        count_weekend = 0
+        while current_Sunday_index <= number_of_days - 1:
+            if nurse[current_Satuarday_index] != 3 \
+                    or nurse[current_Sunday_index] != 3:
+                count_weekend += 1
+            if count_weekend > max_weekends:
+                if nurse[current_Satuarday_index] != 3:
+                    nurse_cost[j][current_Satuarday_index] += 99999999
+                if nurse[current_Sunday_index] != 3:
+                    nurse_cost[j][current_Sunday_index] += 99999999
+            current_Satuarday_index += 7
+            current_Sunday_index += 7
+
+
+# calculate consecutive working days
+def count_consecutive_working_days(array, start):
+    index = start  # current day index
+    counter = 0
+    while array[index] != 3:
+        if index == 13:
+            break
+        counter += 1
+        index += 1
+
+    return counter
 
 
 def main():

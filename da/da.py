@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from softConstraintsCost import costCalculator
+from hardConstraintsValidation import hard_constraints_validation
 
 _beta = 1.5
 _sigma = 0.6966
@@ -169,13 +170,9 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
 
         # round down / round up
         # vel = np.ceil(vel * 50)
-        # vel = np.ceil(vel)
+        vel = np.round(vel)
 
-
-        # random
-        # >3 -> 3; < 0 -> 0
         pos = pos.astype("float64")
-        pos = pos % 4
         pos[neighbours_cnt_gt_0] += vel[neighbours_cnt_gt_0]  # Eq. 3.7
         levy = _levy(dim, neighbours_cnt_eq_0.size)
         # amplify levy to a higher number range
@@ -188,7 +185,6 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         # Map all res to [0,1,2,3]
 
         pos = np.ceil(pos).astype("int32")
-
         pos = pos % 4
 
         # Prepare to next iteration, save data
@@ -216,10 +212,11 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         # plt.plot(iter_x, min_result, label="Optimum globalne")
         plt.legend(fontsize='medium')
         plt.title("Ewolucja roju czastek")
-        plt.xlabel("Liczba iteracji")
-        plt.ylabel("Wartosc funkcji")
+        plt.xlabel("number of iterations")
+        plt.ylabel("cost value")
         plt.savefig("evolution.png")
         plt.show()
+
 
     return min_pos, min_value, function_cnt
 
@@ -227,10 +224,11 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
 def main():
     dim = 14
     agents = 20
-    iteration = 1000000
+    iteration = 1000
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
     dragonfly_algorithm(costCalculator, agents, lbd, upd, iteration)
+
 
 if __name__ == "__main__":
     main()
