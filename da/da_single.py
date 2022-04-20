@@ -167,7 +167,6 @@ def dragonfly_algorithm(function,validation, agents, lbd, ubd, iteration, param_
 
 
         pos = pos.astype("float64")
-        pre_pos = pos
         pos[neighbours_cnt_gt_0] += vel[neighbours_cnt_gt_0]  # Eq. 3.7
         levy = _levy(dim, neighbours_cnt_eq_0.size)
         # amplify levy to a higher number range
@@ -204,12 +203,12 @@ def dragonfly_algorithm(function,validation, agents, lbd, ubd, iteration, param_
         # for i in range(values_matrix.shape[1]):
         #     plt.plot(iter_x, values_matrix[:, i], '-k', lw=0.25, ms=0.3)
         plt.plot(iter_x, results, label="Optimum w iteracji")
-        # plt.plot(iter_x, min_result, label="Optimum globalne")
+        plt.plot(iter_x, min_result, label="Global Optium")
         plt.legend(fontsize='medium')
-        plt.title("Ewolucja roju czastek")
+        plt.title("DA Evolution")
         plt.xlabel("number of iterations")
-        plt.ylabel("cost value")
-        plt.savefig("evolution.png")
+        plt.ylabel("Cost")
+        plt.savefig("da.png")
         plt.show()
 
 
