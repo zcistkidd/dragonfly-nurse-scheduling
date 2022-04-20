@@ -10,22 +10,14 @@ df_shift = pd.read_csv("./data/SECTION_SHIFTS.csv")
 df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
 df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 
-# df_nurse_schedule = pd.read_csv("data/nurse_schedule.csv");
 
-#   D1 D2 D3 D4 D5 ... D14
-# 1  0  1 2  0  2       1
-# 2  1  2 1  1  2       0
-# 3
-# 4
-# 5
-# 6
 def hard_constraints_validation(nurse_schedule):
     # nurse_schedule: matrix
-    if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule) and cover_validation(nurse_schedule):
+    # if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule) and cover_validation(nurse_schedule):
+    if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule):
         return True
     else:
         return False
-
 
 # Check if the approved day-off is scheduled with shift for each nurse
 def days_off_validation(nurse_schedule):
@@ -52,7 +44,7 @@ def staff_validation(nurse_schedule):
         max_consecutive_shifts = df_staff.at[j, 'MaxConsecutiveShifts']
         min_consecutive_shifts = df_staff.at[j, 'MinConsecutiveShifts']
         min_consecutive_days_off = df_staff.at[j, 'MinConsecutiveDaysOff']
-        max_weekends =  df_staff.at[j, 'MaxWeekends']
+        max_weekends = df_staff.at[j, 'MaxWeekends']
         max_evening_shift = df_staff.at[j, 'MaxShifts_1']
         max_day_shift = df_staff.at[j, 'MaxShifts_0']
         max_late_shift = df_staff.at[j, 'MaxShifts_2']
@@ -143,19 +135,19 @@ def count_consecutive_working_days(array, start):
     return counter
 
 
-def cover_validation(nurse_schedule):
-    for _, row in df_cover.iterrows():
-        day = row['Day']  # get day and shiftID from constraint
-        shift = row['ShiftID_num']
-        schedule = nurse_schedule[:, [day]]  # select specified day column, 1 columns, number of nurses = rows
-        count = 0
-        for i in range(len(schedule)):
-            if schedule[i][0] == shift:
-                count = count + 1
-
-        if count <= row['Requirement']:  # not enough nurse
-            return False
-    return True
+# def cover_validation(nurse_schedule):
+#     for _, row in df_cover.iterrows():
+#         day = row['Day']  # get day and shiftID from constraint
+#         shift = row['ShiftID_num']
+#         schedule = nurse_schedule[:, [day]]  # select specified day column, 1 columns, number of nurses = rows
+#         count = 0
+#         for i in range(len(schedule)):
+#             if schedule[i][0] == shift:
+#                 count = count + 1
+#
+#         if count <= row['Requirement']:  # not enough nurse
+#             return False
+#     return True
 
 
 def main():
@@ -183,7 +175,6 @@ def main():
         print("True")
     else:
         print("False")
-
 
 
 if __name__ == "__main__":

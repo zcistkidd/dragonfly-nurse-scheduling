@@ -216,9 +216,9 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         plt.plot(iter_x, results, label="Optimum w iteracji")
         # plt.plot(iter_x, min_result, label="Optimum globalne")
         plt.legend(fontsize='medium')
-        plt.title("Ewolucja roju czastek")
-        plt.xlabel("Liczba iteracji")
-        plt.ylabel("Wartosc funkcji")
+        plt.title("The evolution of a particle swarm")
+        plt.xlabel("The number of iterations")
+        plt.ylabel("The value of the function")
         plt.savefig("evolution.png")
         plt.show()
 
@@ -228,7 +228,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
 def main():
     dim = 14
     agents = 20
-    iteration = 100
+    iteration = 1000
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
     dragonfly_algorithm(dummy_cost, agents, lbd, upd, iteration)
