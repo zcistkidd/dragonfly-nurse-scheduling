@@ -27,7 +27,7 @@ def days_off_validation(nurse_schedule, nurseID):
 
 # Check min/max minutes, weekends, shifts, consecutive days off and working days
 def staff_validation(nurse_schedule, nurseID):
-    number_of_days = len(nurse_schedule[0])  # number of days
+    number_of_days = len(nurse_schedule)  # number of days
 
     nurse = nurse_schedule
     max_total_minutes = df_staff.at[nurseID, 'MaxTotalMinutes']
@@ -73,7 +73,7 @@ def staff_validation(nurse_schedule, nurseID):
     # Check working minutes
     total_working_time = 0
     for i in range(0, number_of_days):
-        if nurse[i] != 3:
+        if nurse[0][i] != 3:
             total_working_time += 720
 
     if total_working_time < min_total_minutes:
@@ -119,7 +119,9 @@ def staff_validation(nurse_schedule, nurseID):
 def count_consecutive_working_days(array, start):
     index = start  # current day index
     counter = 0
-    while array[0][index - 1] != 3:
+    while array[index] != 3:
+        if index == 13:
+            break
         counter += 1
         index += 1
     return counter
