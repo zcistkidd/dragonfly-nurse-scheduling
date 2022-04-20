@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import math
 from softConstraintsCost import costCalculator
 from hardConstraintsValidation import hard_constraints_validation
+from scheduleIsValid import schedule_validation
 
 _beta = 1.5
 _sigma = 0.6966
@@ -61,8 +62,17 @@ def _random_population(lbd, choices=[0, 1, 2, 3], n=20):
     # return a n*lbd(row*col) size matrix with every element in [0,ubd)
     # will need to change to discrete
     # return np.random.random((n, lbd.size)) * (ubd - lbd) + lbd
+    # meet requirement for hard constraints
     return np.random.choice(choices, (n, lbd.size))
 
+def _population(lbd, choices=[0, 1, 2, 3]):
+    init_pos = []
+    for i in range(0, 20):
+        pos = np.random.choice(choices, (1, lbd.size))
+        while not schedule_validation(pos, i):
+            pos = np.random.choice(choices, (1, lbd.size))
+        init_pos.append(pos)
+    return init_pos
 
 def _get_neighbours_matrix(pos, radius, agents):
     t = np.abs(pos - pos[:, np.newaxis]) < radius
@@ -91,7 +101,7 @@ def _border_reflection(pos, lbd, ubd):
     return pos
 
 
-def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variable_param, plot=True):
+def dragonfly_algorithm(function,validation, agents, lbd, ubd, iteration, param_fun=_variable_param, plot=True):
     ###OFF=-1,D = 0, E = 1, L=2
     ###lbd = -1 * np.ones(dim)
     ###upd = 2 * np.ones(dim)
@@ -102,7 +112,8 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
     n_shape = (agents, agents, 1)
 
     vel_max = (ubd - lbd) / 6.0  # TODO Need tuning a bit to see if velocity will fit in discrete
-    pos = _random_population(lbd)
+    # pos = _random_population(lbd)
+    pos = _population(lbd)
     vel = _random_population(lbd)
     # TODO pos and vel validation to check if hard constraints are voilated from Shufei
     ## caculate the cost of each agents
@@ -173,6 +184,7 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         vel = np.round(vel)
 
         pos = pos.astype("float64")
+        pre_pos = pos
         pos[neighbours_cnt_gt_0] += vel[neighbours_cnt_gt_0]  # Eq. 3.7
         levy = _levy(dim, neighbours_cnt_eq_0.size)
         # amplify levy to a higher number range
@@ -185,7 +197,10 @@ def dragonfly_algorithm(function, agents, lbd, ubd, iteration, param_fun=_variab
         # Map all res to [0,1,2,3]
 
         pos = np.ceil(pos).astype("int32")
-        pos = pos % 4
+        if not validation(pos):
+            pos = pre_pos
+        else:
+            pos = pos % 4
 
         # Prepare to next iteration, save data
         values = function(pos)
@@ -227,7 +242,7 @@ def main():
     iteration = 1000
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
-    dragonfly_algorithm(costCalculator, agents, lbd, upd, iteration)
+    dragonfly_algorithm(costCalculator, hard_constraints_validation, agents, lbd, upd, iteration)
 
 
 if __name__ == "__main__":

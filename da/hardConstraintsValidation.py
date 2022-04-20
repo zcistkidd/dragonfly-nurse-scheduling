@@ -4,13 +4,12 @@ import pandas as pd
 # from numpy import array
 import numpy as np
 from sklearn import preprocessing
-from softConstraintsCost import  costCalculator
+from softConstraintsCost import costCalculator
 
 df_days_off = pd.read_csv("./data/SECTION_DAYS_OFF.csv")
 df_shift = pd.read_csv("./data/SECTION_SHIFTS.csv")
 df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
 df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
-
 
 
 def hard_constraints_validation(nurse_schedule):
@@ -20,6 +19,7 @@ def hard_constraints_validation(nurse_schedule):
         return True
     else:
         return False
+
 
 # Check if the approved day-off is scheduled with shift for each nurse
 def days_off_validation(nurse_schedule):
@@ -32,6 +32,7 @@ def days_off_validation(nurse_schedule):
         if nurse[day_off] != 3:
             return False
     return True
+
 
 # Check min/max minutes, weekends, shifts, consecutive days off and working days
 def staff_validation(nurse_schedule):

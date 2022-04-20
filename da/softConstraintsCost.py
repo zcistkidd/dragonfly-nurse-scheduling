@@ -40,7 +40,7 @@ def costCalculator(df_nurse_schedule):
                  shiftOnRequest(df_nurse_schedule, nurse_cost) + \
                  cover(df_nurse_schedule, nurse_cost)
     # cost =  offcost.add(oncost)
-    hard_constraints_validation(df_nurse_schedule, nurse_cost)
+    #hard_constraints_validation(df_nurse_schedule, nurse_cost)
     cost = convertNurseCost(nurse_cost)
     return cost
 
@@ -144,6 +144,7 @@ def hard_constraints_validation(nurse_schedule, nurse_cost):
     # if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule) and cover_validation(nurse_schedule):
     days_off_validation(nurse_schedule, nurse_cost)
     staff_validation(nurse_schedule, nurse_cost)
+    # cover_hard(nurse_schedule, nurse_cost)
 
 
 # Check if the approved day-off is scheduled with shift for each nurse
@@ -156,6 +157,25 @@ def days_off_validation(nurse_schedule, nurse_cost):
         nurse = nurse_schedule[employee]  # 1 row, 14 columns
         if nurse[day_off] != 3:
             nurse_cost[employee][day_off] += 99999999
+
+
+def cover_hard(nurse_schedule, nurse_cost):
+    for dayIndex in range(len(nurse_schedule[0])): # 0 -13
+        day_schedule = nurse_schedule[:, [dayIndex]]
+        day = 0
+        evening = 0
+        late = 0
+        for nurse in day_schedule:
+            if nurse == 0:
+                day += 1
+            if nurse == 1:
+                evening += 1
+            if nurse == 2:
+                late += 1
+        if day == 0 or evening == 0 or late == 0:
+            for i in range(len(nurse_cost)):
+                if day_schedule[i] == 3:
+                    nurse_cost[i][dayIndex] += 99999999
 
 
 # Check min/max minutes, weekends, shifts, consecutive days off and working days
@@ -174,7 +194,7 @@ def staff_validation(nurse_schedule, nurse_cost):
         max_evening_shift = df_staff.at[j, 'MaxShifts_1']
         max_day_shift = df_staff.at[j, 'MaxShifts_0']
         max_late_shift = df_staff.at[j, 'MaxShifts_2']
-        for i in range(0, number_of_days - 1): # i: 0 - 12
+        for i in range(0, number_of_days - 1):  # i: 0 - 12
             # round to int?
             # nurse[i + 1] = round(nurse[i + 1])
             prev = nurse[i]
@@ -229,7 +249,7 @@ def staff_validation(nurse_schedule, nurse_cost):
             if nurse[i] == 1:
                 count_evening += 1
                 if count_evening > max_evening_shift:
-                    nurse_cost[j][i] +=99999999
+                    nurse_cost[j][i] += 99999999
             if nurse[i] == 2:
                 count_late += 1
                 if count_late > max_late_shift:
