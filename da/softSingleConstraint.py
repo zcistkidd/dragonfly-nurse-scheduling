@@ -12,7 +12,6 @@ df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 df_days_off = pd.read_csv("./data/SECTION_DAYS_OFF.csv")
 df_shift = pd.read_csv("./data/SECTION_SHIFTS.csv")
 df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
-df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 
 
 #   D1 D2 D3 D4 D5 ... D14
@@ -24,76 +23,55 @@ df_cover = pd.read_csv("./data/SECTION_COVER.csv")  # soft
 # 6
 
 
-def costCalculator(df_nurse_schedule,idx):
-    number_idx = len(df_nurse_schedule)
+def costCalculator(df_nurse_schedule, idx):
     number_of_days = len(df_nurse_schedule[0])
+    number_of_agent = len(df_nurse_schedule)
     # cost matrix
-    # nurse_cost = np.arange(number_of_days * number_of_nurses).reshape((number_of_nurses, number_of_days))
-    nurse_cost = [[0 for i in range(number_of_days)] for j in range(number_of_nurses)]
-    total_cost = shiftOffRequest(df_nurse_schedule, nurse_cost) + \
-                 shiftOnRequest(df_nurse_schedule, nurse_cost)
+    nurse_cost = [[0 for i in range(number_of_days)] for j in range(number_of_agent)]
+    off_cost = shiftOffRequest(df_nurse_schedule, nurse_cost, 0)
+    on_cost = shiftOnRequest(df_nurse_schedule, nurse_cost, 0)
     hard_constraints_validation(df_nurse_schedule, nurse_cost)
     cost = convertNurseCost(nurse_cost)
     return cost
 
 
-
-
-def shiftOffRequest(df_nurse_schedule, nurse_cost,nurse_idx):
+def shiftOffRequest(df_nurse_schedule, nurse_idx):
+    # df_nurse_schedule 14*20
     shift_off_cost_total = 0
-    shift_off_cost_each_vector = []
-    for _, row in df_shift_off.iterrows():
-        employee = row['EmployeeID_num']
-        if not nurse_idx == employee:
-            continue
+    shift_off_cost_each_vector = np.zeros(len(df_nurse_schedule))
+    # Only keep cost associated with current nurse_idx
+    cur_off_request = df_shift_off[df_shift_off['EmployeeID_num'] == nurse_idx]
+
+    for _, row in cur_off_request.iterrows():
         day = row['Day']
         shift = row['ShiftID_num']
+        weight = row['Weight']
+        #Filtered out the n th day col
+        cur_day_col = df_nurse_schedule[:,day]
+        #Get a bolean vector indicating if thats day's shift is the cost shift
+        pos_with_cost = cur_day_col == shift
+        #Added weight to the result vector
+        shift_off_cost_each_vector += (pos_with_cost * weight)
 
-        # check with nurse schedule to see if there is a day off as requested
-        nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
-        if nurse[day] == shift:
-            shift_off_cost_total = shift_off_cost_total + 1
-            nurse_cost[employee][day] = 1
-            shift_off_cost_each_vector.append(1)
-    # return pd.Series(shift_off_cost_each_vector), shift_off_cost_total
-    return shift_off_cost_total
+    return shift_off_cost_each_vector
 
 
-def shiftOnRequest(df_nurse_schedule, nurse_cost, nurse_idx):
-    shift_on_cost_total = 0
-    shift_on_cost_each_vector = []
-    for _, row in df_shift_on.iterrows():
-        employee = row['EmployeeID_num']
+def shiftOnRequest(df_nurse_schedule, nurse_idx):
+    shift_on_cost_each_vector = np.zeros(len(df_nurse_schedule))
+    cur_on_request = df_shift_off[df_shift_off['EmployeeID_num'] == nurse_idx]
+
+    for _, row in cur_on_request.iterrows():
         day = row['Day']
         shift = row['ShiftID_num']
-        if not nurse_idx == employee:
-            continue
-        # check with nurse schedule to see if there is a shift as requested
-        nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
-        if nurse[day] != shift:  # nurse['day']?? how to get the specified column
-            shift_on_cost_total = shift_on_cost_total + 1
-            nurse_cost[employee][day] = 1
-            shift_on_cost_each_vector.append(1)
-    # return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
-    return shift_on_cost_total
+        weight = row['Weight']
+        #Filtered out the n th day col
+        cur_day_col = df_nurse_schedule[:,day]
+        #Get a bolean vector indicating if thats day's shift is the cost shift
+        pos_with_cost = cur_day_col == shift
+        #Added weight to the result vector
+        shift_on_cost_each_vector += (pos_with_cost * weight)
 
-
-def cover(df_nurse_schedule, nurse_cost):
-    shift_on_cost_total = 0
-    shift_on_cost_each_vector = []
-    for _, row in df_shift_on.iterrows():
-        employee = row['EmployeeID_num']
-        day = row['Day']
-        shift = row['ShiftID_num']
-
-        # check with nurse schedule to see if there is a shift as requested
-        nurse = df_nurse_schedule[employee]  # 1 row, 14 columns
-        if nurse[day] != shift:  # nurse['day']?? how to get the specified column
-            shift_on_cost_total = shift_on_cost_total + 1
-            nurse_cost[employee][day] = 1
-            shift_on_cost_each_vector.append(1)
-    # return pd.Series(shift_on_cost_each_vector), shift_on_cost_total
-    return shift_on_cost_total
+    return shift_on_cost_each_vector
 
 
 def convertNurseCost(nurse_cost):
@@ -129,7 +107,7 @@ def days_off_validation(nurse_schedule, nurse_cost):
 
 
 def cover_hard(nurse_schedule, nurse_cost):
-    for dayIndex in range(len(nurse_schedule[0])): # 0 -13
+    for dayIndex in range(len(nurse_schedule[0])):  # 0 -13
         day_schedule = nurse_schedule[:, [dayIndex]]
         day = 0
         evening = 0
@@ -271,8 +249,12 @@ def main():
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]])
-    cost = costCalculator(res)
-    print(cost)
+    # cost = costCalculator(res, 0)
+    res_on = shiftOnRequest(res,0)
+    res_off = shiftOffRequest(res,0)
+    print(res_on)
+    print(res_off)
+
 
 
 if __name__ == "__main__":
