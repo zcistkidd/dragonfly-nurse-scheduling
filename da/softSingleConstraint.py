@@ -1,4 +1,5 @@
 import csv
+from collections import defaultdict
 
 import numpy as np
 import pandas as pd
@@ -174,21 +175,73 @@ def weekend_cost(nurse_schdule, nurse_idx,weekends = [5,6,12,13]):
 
     return cost_weekend
 
+def consective_shifts_cost(nurse_schedule, nurse_idx):
+    cur = df_staff[df_staff['ID_num'] == nurse_idx]
+
+    max_con_shifts = np.repeat(cur['MaxConsecutiveShifts'], len(nurse_schedule))
+    min_con_shifts = np.repeat(cur['MinConsecutiveShifts'], len(nurse_schedule))
+
+    m,n = len(nurse_schedule),len(nurse_schedule[0])
+    cost = np.zeros(m)
+    ocurrence = np.zeros(m)
+
+    nurse_schedule = nurse_schedule < 3
+
+    for i in range(m):
+        ocurrence[i] = consective_counter(nurse_schedule[i],1)
+
+
+    cost =(ocurrence > max_con_shifts) *99999999 + (ocurrence <min_con_shifts) *99999999
+
+    return cost
+
+
+def consective_off_cost(nurse_schedule, nurse_idx):
+    cur = df_staff[df_staff['ID_num'] == nurse_idx]
+
+
+    min_con_shifts = np.repeat(cur['MinConsecutiveDaysOff'], len(nurse_schedule))
+
+    m, n = len(nurse_schedule), len(nurse_schedule[0])
+    cost = np.zeros(m)
+    ocurrence = np.zeros(m)
+
+    nurse_schedule = nurse_schedule < 3
+
+    for i in range(m):
+        ocurrence[i] = consective_counter(nurse_schedule[i], 1)
+
+    cost = (ocurrence < min_con_shifts) * 99999999
+
+    return cost
+
+
+def consective_off_cost(nurse_schedule, nurse_idx):
+    cur = df_staff[df_staff['ID_num'] == nurse_idx]
+
+    max_con_shifts = np.repeat(cur['MaxConsecutiveShifts'], len(nurse_schedule))
+    min_con_shifts = np.repeat(cur['MinConsecutiveShifts'], len(nurse_schedule))
+
+    m, n = len(nurse_schedule), len(nurse_schedule[0])
+    cost = np.zeros(m)
+
+    nurse_schedule = nurse_schedule < 3
+
+    for i in range(m):
+        cost[i] = consective_counter(nurse_schedule[i], 1)
+
+    return cost
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+def consective_counter(array,num):
+    m = len(array)
+    cnt = 0
+    for i in range(m - 1):
+        cur,nxt = array[i], array[i+1]
+        if cur == nxt == num:
+            cnt += 1
+    return cnt
 
 
 
