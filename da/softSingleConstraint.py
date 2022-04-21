@@ -119,6 +119,48 @@ def shifts_cost(nurse_schedule):
     return shift_on_cost_each_vector
 
 
+def total_minutes_cost(nurse_schdule, nurse_idx):
+    shift_on_cost_total_minutes = np.zeros(len(nurse_schdule))
+    cur_on_request = df_shift_off[df_shift_off['ID_num'] == nurse_idx]
+
+
+    MaxTotalMinutes = cur_on_request['MaxTotalMinutes']
+    MinTotalMinutes = cur_on_request['MinTotalMinutes']
+
+    total_minutes = ((nurse_schdule < 3).sum())*480
+    max_violation = total_minutes > MaxTotalMinutes
+    min_violation = total_minutes < MinTotalMinutes
+
+    shift_on_cost_total_minutes += (max_violation * 99999999 + min_violation * 99999999)
+
+    return shift_on_cost_total_minutes
+
+
+
+def total_shifts_cost(nurse_schdule, nurse_idx):
+    cost_total_shifts = np.zeros(len(nurse_schdule))
+    cur_on_request = df_shift_off[df_shift_off['ID_num'] == nurse_idx]
+
+    MaxShifts_0 = cur_on_request['MaxShifts_0']
+    MaxShifts_1 = cur_on_request['MaxShifts_1']
+    MaxShifts_2 = cur_on_request['MaxShifts_2']
+
+
+    count_0 = (nurse_schdule == 0).sum()
+    count_1 = (nurse_schdule == 1).sum()
+    count_2 = (nurse_schdule == 2).sum()
+
+    vol_0 = count_0 > MaxShifts_0
+    vol_1 = count_1 > MaxShifts_1
+    vol_2 = count_2 > MaxShifts_2
+
+    cost_total_shifts += (vol_0 * 99999999 + vol_1 * 99999999 + vol_2 * 99999999)
+
+    return cost_total_shifts
+
+
+
+
 
 
 
