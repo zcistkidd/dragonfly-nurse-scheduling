@@ -121,7 +121,7 @@ def shifts_cost(nurse_schedule):
 
 def total_minutes_cost(nurse_schdule, nurse_idx):
     shift_on_cost_total_minutes = np.zeros(len(nurse_schdule))
-    cur_on_request = df_shift_off[df_shift_off['ID_num'] == nurse_idx]
+    cur_on_request = df_staff[df_staff['ID_num'] == nurse_idx]
 
 
     MaxTotalMinutes = cur_on_request['MaxTotalMinutes']
@@ -139,7 +139,7 @@ def total_minutes_cost(nurse_schdule, nurse_idx):
 
 def total_shifts_cost(nurse_schdule, nurse_idx):
     cost_total_shifts = np.zeros(len(nurse_schdule))
-    cur_on_request = df_shift_off[df_shift_off['ID_num'] == nurse_idx]
+    cur_on_request = df_staff[df_staff['ID_num'] == nurse_idx]
 
     MaxShifts_0 = cur_on_request['MaxShifts_0']
     MaxShifts_1 = cur_on_request['MaxShifts_1']
@@ -158,6 +158,18 @@ def total_shifts_cost(nurse_schdule, nurse_idx):
 
     return cost_total_shifts
 
+def weekend_cost(nurse_schdule, nurse_idx,weekends = [5,6,12,13,19]):
+    cost_weekend = np.zeros(len(nurse_schdule))
+    cur_weekend = df_staff[df_staff['ID_num'] == nurse_idx]
+
+    MaxShifts = cur_weekend['MaxWeekends']
+
+    cur = nurse_schdule[:,weekends]
+    total_cnt =((cur < 3).sum())
+
+    cost_weekend = total_cnt*99999999
+
+    return cost_weekend
 
 
 
