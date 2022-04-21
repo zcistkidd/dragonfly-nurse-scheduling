@@ -25,6 +25,34 @@ debug = False
 # 6
 
 
+def cover(nurse_schedule):
+    cover_cost_total = 0
+    for _, row in df_cover.iterrows():
+        day = row['Day']  # get day and shiftID from constraint
+        shift = row['ShiftID_num']
+        # schedule_reader = csv.DictReader(df_nurse_schedule) # check with nurse schedule matrix
+        schedule = nurse_schedule[:, [day]]  # select specified day column, 1 columns, number of nurses = rows
+        current_shift_nurse = []
+        count = 0
+        for i in range(len(schedule)):
+            if schedule[i][0] == shift:
+                count = count + 1
+                current_shift_nurse.append(i)
+        if count > row['Requirement']:  # more nurses than we needed
+            cover_cost_total = cover_cost_total + 1
+            # for j in current_shift_nurse:
+            #     nurse_cost[j][day] += 1.0 / count
+        if count < row['Requirement']:  # not enough nurse
+            cover_cost_total = cover_cost_total + 100
+            # for j in nurse_cost:  # 0 - 19
+            #     if j in current_shift_nurse:
+            #         continue
+            #     else:
+            #         nurse_cost[j][day] += 100.0 / (len(nurse_cost) - count)
+
+    return cover_cost_total
+
+
 def costCalculator(df_nurse_schedule, idx):
     res_on = shiftOnRequest(df_nurse_schedule, idx)
     res_off = shiftOffRequest(df_nurse_schedule, idx)

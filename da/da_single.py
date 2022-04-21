@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from softSingleConstraint import costCalculator
+from softSingleConstraint import cover
 import pickle
 import time
 
@@ -104,8 +105,8 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
     x_shape = (agents, agents, dim)
     n_shape = (agents, agents, 1)
 
-    pos = _random_population(lbd)
-    vel = _random_population(lbd)
+    pos = _random_population(lbd, n=agents)
+    vel = _random_population(lbd, n=agents)
     # TODO pos and vel validation to check if hard constraints are voilated from Shufei
     ## caculate the cost of each agents
     values = function(pos,idx)  # TODO Custom Cost Function to implemented by Yuhan
@@ -220,16 +221,31 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
 
 def main():
     dim = 14
-    agents = 20
     nurses = 20  # for current data set used, number of nurses is always 20
-    iteration = 100000
+    agents = 100
+    iteration = 100
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
     res = {}
     ts = int(time.time())
+    entire_schedule = []
+    total_cost = 0
     for idx in range(nurses):
-        min_pos, min_value, function_cnt = dragonfly_algorithm(costCalculator,agents, lbd, upd, iteration,idx)
+        while True:
+            min_pos, min_value, function_cnt = dragonfly_algorithm(costCalculator, agents, lbd, upd, iteration, idx)
+            if min_value < 99999999:
+                print("single cost of nurse", idx, "is:", min_value)
+                break
         res[str(idx)] = (min_pos, min_value, function_cnt)
+        entire_schedule.append(min_pos)
+        total_cost += min_value
+        # print(idx, (min_pos, min_value))
+    print(np.matrix(entire_schedule))
+    cover_cost = cover(np.array(entire_schedule))
+    print("cover cost is ", cover_cost)
+    total_cost += cover_cost
+    print("total cost is ", total_cost)
+
     filename = "{}_{}_.res".format(ts,iteration)
     pickle.dump(res, open(filename, "wb"))
 
