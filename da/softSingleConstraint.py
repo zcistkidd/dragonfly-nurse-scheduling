@@ -106,23 +106,34 @@ def days_off_validation(nurse_schedule, nurse_cost):
             nurse_cost[employee][day_off] += 99999999
 
 
-def cover_hard(nurse_schedule, nurse_cost):
-    for dayIndex in range(len(nurse_schedule[0])):  # 0 -13
-        day_schedule = nurse_schedule[:, [dayIndex]]
-        day = 0
-        evening = 0
-        late = 0
-        for i in day_schedule:
-            if day_schedule[i][0] == 0:
-                day += 1
-            if day_schedule[i][0] == 1:
-                evening += 1
-            if day_schedule[i][0] == 2:
-                late += 1
-        if day == 0 or evening == 0 or late == 0:
-            for j in range(len(nurse_cost)):
-                if day_schedule[j] == 3:
-                    nurse_cost[j][dayIndex] += 99999999
+
+def shifts_cost(nurse_schedule):
+    m,n = len(nurse_schedule),len(nurse_schedule[0])
+    shift_on_cost_each_vector = np.zeros(m)
+    for i in range(m):
+        for j in range(n-1):
+            cur = nurse_schedule[i][j]
+            nxt = nurse_schedule[i][j+1]
+            if (cur,nxt) in [(0,1),(2,0),(2,1)]:
+                shift_on_cost_each_vector[i] += 99999999
+    return shift_on_cost_each_vector
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Check min/max minutes, weekends, shifts, consecutive days off and working days
@@ -235,7 +246,7 @@ def count_consecutive_working_days(array, start):
 
 def main():
     # nurse schedule
-    res = np.array([[3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    res = np.array([[0, 1, 0, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
@@ -252,6 +263,7 @@ def main():
     # cost = costCalculator(res, 0)
     res_on = shiftOnRequest(res,0)
     res_off = shiftOffRequest(res,0)
+    res_shifts = shifts_cost(res)
     print(res_on)
     print(res_off)
 
