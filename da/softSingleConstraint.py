@@ -95,16 +95,15 @@ def hard_constraints_validation(nurse_schedule, nurse_cost):
 
 
 # Check if the approved day-off is scheduled with shift for each nurse
-def days_off_validation(nurse_schedule, nurse_cost):
-    for _, row in df_days_off.iterrows():
-        employee = row['EmployeeID_num']
-        day_off = row['DayIndexes(startatzero)']
-
-        # check with nurse schedule
-        nurse = nurse_schedule[employee]  # 1 row, 14 columns
-        if nurse[day_off] != 3:
-            nurse_cost[employee][day_off] += 99999999
-
+def days_off_validation(nurse_schedule, nurse_idx):
+    days_off_cost_each_vector = np.zeros(len(nurse_schedule))
+    cur_off_constraint = df_days_off[df_days_off['EmployeeID_num'] == nurse_idx]
+    for _, row in cur_off_constraint.iterrows():
+        day = row['DayIndexes(startatzero)']
+        cur_day_col = nurse_schedule[:, day]
+        pos_with_cost = cur_day_col != 3
+        days_off_cost_each_vector += (pos_with_cost * 99999999)
+    return days_off_cost_each_vector
 
 
 def shifts_cost(nurse_schedule):
