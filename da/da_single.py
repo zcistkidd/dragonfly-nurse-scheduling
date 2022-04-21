@@ -221,12 +221,13 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
 def main():
     dim = 14
     agents = 20
+    nurses = 20  # for current data set used, number of nurses is always 20
     iteration = 100000
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
     res = {}
     ts = int(time.time())
-    for idx in range(agents):
+    for idx in range(nurses):
         min_pos, min_value, function_cnt = dragonfly_algorithm(costCalculator,agents, lbd, upd, iteration,idx)
         res[str(idx)] = (min_pos, min_value, function_cnt)
     filename = "{}_{}_.res".format(ts,iteration)
