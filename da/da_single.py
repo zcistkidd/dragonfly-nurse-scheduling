@@ -202,17 +202,17 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
             min_value_ind, min_value, min_pos[:] = act_min_ind, act_min, pos[act_min_ind, :]
         min_result[i] = min_value
 
-    # if plot:
-    #     # for i in range(values_matrix.shape[1]):
-    #     #     plt.plot(iter_x, values_matrix[:, i], '-k', lw=0.25, ms=0.3)
-    #     plt.plot(iter_x, results, label="Optimum w iteracji")
-    #     plt.plot(iter_x, min_result, label="Global Optium")
-    #     plt.legend(fontsize='medium')
-    #     plt.title("DA Evolution")
-    #     plt.xlabel("number of iterations")
-    #     plt.ylabel("Cost")
-    #     plt.savefig("da.png")
-    #     plt.show()
+    if plot:
+        # for i in range(values_matrix.shape[1]):
+        #     plt.plot(iter_x, values_matrix[:, i], '-k', lw=0.25, ms=0.3)
+        plt.plot(iter_x, results, label="Optimum w iteracji")
+        plt.plot(iter_x, min_result, label="Global Optium")
+        plt.legend(fontsize='medium')
+        plt.title("DA Evolution")
+        plt.xlabel("number of iterations")
+        plt.ylabel("Cost")
+        plt.savefig("da" + idx + ".png")
+        plt.show()
 
 
     return min_pos, min_value, function_cnt
