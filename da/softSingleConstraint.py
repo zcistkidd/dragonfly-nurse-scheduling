@@ -200,7 +200,7 @@ def consective_off_cost(nurse_schedule, nurse_idx):
     cur = df_staff[df_staff['ID_num'] == nurse_idx]
 
 
-    min_con_shifts = np.repeat(cur['MinConsecutiveDaysOff'], len(nurse_schedule))
+    min_con_off = np.repeat(cur['MinConsecutiveDaysOff'], len(nurse_schedule))
 
     m, n = len(nurse_schedule), len(nurse_schedule[0])
     cost = np.zeros(m)
@@ -209,28 +209,14 @@ def consective_off_cost(nurse_schedule, nurse_idx):
     nurse_schedule = nurse_schedule < 3
 
     for i in range(m):
-        ocurrence[i] = consective_counter(nurse_schedule[i], 1)
+        ocurrence[i] = consective_counter(nurse_schedule[i], 0)
 
-    cost = (ocurrence < min_con_shifts) * 99999999
-
-    return cost
-
-
-def consective_off_cost(nurse_schedule, nurse_idx):
-    cur = df_staff[df_staff['ID_num'] == nurse_idx]
-
-    max_con_shifts = np.repeat(cur['MaxConsecutiveShifts'], len(nurse_schedule))
-    min_con_shifts = np.repeat(cur['MinConsecutiveShifts'], len(nurse_schedule))
-
-    m, n = len(nurse_schedule), len(nurse_schedule[0])
-    cost = np.zeros(m)
-
-    nurse_schedule = nurse_schedule < 3
-
-    for i in range(m):
-        cost[i] = consective_counter(nurse_schedule[i], 1)
+    cost = (ocurrence < min_con_off) * 99999999
 
     return cost
+
+
+
 
 
 
@@ -246,112 +232,6 @@ def consective_counter(array,num):
 
 
 
-# Check min/max minutes, weekends, shifts, consecutive days off and working days
-def staff_validation(nurse_schedule, nurse_cost):
-    number_of_days = len(nurse_schedule[0])  # number of days
-
-    for j in range(0, len(nurse_schedule)):
-        nurse = nurse_schedule[j]
-        max_total_minutes = df_staff.at[j, 'MaxTotalMinutes']
-        # max_total_minutes = df_staff[j]['MaxTotalMinutes']
-        min_total_minutes = df_staff.at[j, 'MinTotalMinutes']
-        max_consecutive_shifts = df_staff.at[j, 'MaxConsecutiveShifts']
-        min_consecutive_shifts = df_staff.at[j, 'MinConsecutiveShifts']
-        min_consecutive_days_off = df_staff.at[j, 'MinConsecutiveDaysOff']
-        max_weekends = df_staff.at[j, 'MaxWeekends']
-        max_evening_shift = df_staff.at[j, 'MaxShifts_1']
-        max_day_shift = df_staff.at[j, 'MaxShifts_0']
-        max_late_shift = df_staff.at[j, 'MaxShifts_2']
-        for i in range(0, number_of_days - 1):  # i: 0 - 12
-            # round to int?
-            # nurse[i + 1] = round(nurse[i + 1])
-            prev = nurse[i]
-            current = nurse[i + 1]
-
-            # D-0 E-1 L-2 O-3
-            # Check if min consecutive day off <= 2
-            if min_consecutive_days_off == 2:
-                if current == 3:
-                    if prev != 3:
-                        # counter = count_consec(array, i + 1, 4)
-                        if current == number_of_days - 1:
-                            nurse_cost[j][i] += 99999999
-                        if nurse[current + 1] != 3:
-                            nurse_cost[j][i] += 99999999
-                        # if counter < 2:
-                        #     return False
-
-            # Check L cannot be followed by anything other than O,
-            # Check D not followed by E
-            if (prev == 2 and current != 3) or (prev == 0 and current == 1):
-                nurse_cost[j][i] += 99999999
-
-            # Check Max consecutive shifts >= 2 && <= 5
-            if prev == 3 and current != 3:
-                counter = count_consecutive_working_days(nurse, i + 1)
-                if counter < min_consecutive_shifts \
-                        or counter > max_consecutive_shifts:
-                    nurse_cost[j][i] += 99999999
-
-        # Check working minutes
-        total_working_time = 0
-        for i in range(0, number_of_days):
-            if nurse[i] != 3:
-                total_working_time += 720
-
-        if total_working_time < min_total_minutes:
-            nurse_cost[j][i] += 99999999
-        if total_working_time > max_total_minutes:
-            nurse_cost[j][i] += 99999999
-
-        # Check max number of shifts
-        count_day = 0
-        count_evening = 0
-        count_late = 0
-        # D-0 E-1 L-2 O-3
-        for i in range(0, number_of_days):
-            if nurse[i] == 0:
-                count_day += 1
-                if count_day > max_day_shift:
-                    nurse_cost[j][i] += 99999999
-            if nurse[i] == 1:
-                count_evening += 1
-                if count_evening > max_evening_shift:
-                    nurse_cost[j][i] += 99999999
-            if nurse[i] == 2:
-                count_late += 1
-                if count_late > max_late_shift:
-                    nurse_cost[j][i] += 99999999
-
-        # Check max weekends
-        # index 5&6, 12&13,19&21, at least we have 7 days in matrix
-        current_Satuarday_index = 5
-        current_Sunday_index = 6
-        count_weekend = 0
-        while current_Sunday_index <= number_of_days - 1:
-            if nurse[current_Satuarday_index] != 3 \
-                    or nurse[current_Sunday_index] != 3:
-                count_weekend += 1
-            if count_weekend > max_weekends:
-                if nurse[current_Satuarday_index] != 3:
-                    nurse_cost[j][current_Satuarday_index] += 99999999
-                if nurse[current_Sunday_index] != 3:
-                    nurse_cost[j][current_Sunday_index] += 99999999
-            current_Satuarday_index += 7
-            current_Sunday_index += 7
-
-
-# calculate consecutive working days
-def count_consecutive_working_days(array, start):
-    index = start  # current day index
-    counter = 0
-    while array[index] != 3:
-        if index == 13:
-            break
-        counter += 1
-        index += 1
-
-    return counter
 
 
 def main():
@@ -364,7 +244,10 @@ def main():
     res_shifts = shifts_cost(res)
     total_shifts = total_shifts_cost(res,0)
     total_mins = total_minutes_cost(res,0)
+    days_off_cost = days_off_validation(res,0)
     weekend = weekend_cost(res,0)
+    con_off_cost = consective_off_cost(res,0)
+    con_on_cost = consective_shifts_cost(res,0)
     print(res_on)
     print(res_off)
 
