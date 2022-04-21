@@ -107,6 +107,7 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
     # TODO pos and vel validation to check if hard constraints are voilated from Shufei
     ## caculate the cost of each agents
     values = function(pos,idx)  # TODO Custom Cost Function to implemented by Yuhan
+    values = values.to_numpy()
     function_cnt = agents
     ## Select current round min value index as food source
     min_value_ind = np.argmin(values)
@@ -182,6 +183,7 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
 
         # Prepare to next iteration, save data
         values = function(pos,idx)
+        values = values.to_numpy()
         function_cnt += agents
 
         # Iteration results
@@ -217,7 +219,7 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
 def main():
     dim = 14
     agents = 20
-    iteration = 1000
+    iteration = 10000
     idx = 0
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
