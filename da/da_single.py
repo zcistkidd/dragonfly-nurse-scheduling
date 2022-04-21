@@ -2,6 +2,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 from softSingleConstraint import costCalculator
+import pickle
+import time
 
 
 _beta = 1.5
@@ -219,11 +221,19 @@ def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_var
 def main():
     dim = 14
     agents = 20
-    iteration = 10000
-    idx = 1
+    iteration = 100000
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
-    dragonfly_algorithm(costCalculator,agents, lbd, upd, iteration,idx)
+    res = dict
+    ts = int(time.time())
+    for idx in range(agents):
+        min_pos, min_value, function_cnt = dragonfly_algorithm(costCalculator,agents, lbd, upd, iteration,idx)
+        res[idx] = (min_pos, min_value, function_cnt)
+    pickle.dump('{}_{}_{}.res'.format(ts,iteration))
+
+
+
+
 
 
 if __name__ == "__main__":
