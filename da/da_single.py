@@ -1,9 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import math
-from softConstraintsCost import costCalculator
-from hardConstraintsValidation import hard_constraints_validation
-from scheduleIsValid import schedule_validation
+from softSingleConstraint import costCalculator
+
 
 _beta = 1.5
 _sigma = 0.6966
@@ -93,7 +92,7 @@ def _border_reflection(pos, lbd, ubd):
     return pos
 
 
-def dragonfly_algorithm(function,validation, agents, lbd, ubd, iteration, param_fun=_variable_param, plot=True):
+def dragonfly_algorithm(function,agents, lbd, ubd, iteration,idx, param_fun=_variable_param, plot=True):
     ###OFF=-1,D = 0, E = 1, L=2
     ###lbd = -1 * np.ones(dim)
     ###upd = 2 * np.ones(dim)
@@ -107,7 +106,7 @@ def dragonfly_algorithm(function,validation, agents, lbd, ubd, iteration, param_
     vel = _random_population(lbd)
     # TODO pos and vel validation to check if hard constraints are voilated from Shufei
     ## caculate the cost of each agents
-    values = function(pos)  # TODO Custom Cost Function to implemented by Yuhan
+    values = function(pos,idx)  # TODO Custom Cost Function to implemented by Yuhan
     function_cnt = agents
     ## Select current round min value index as food source
     min_value_ind = np.argmin(values)
@@ -182,7 +181,7 @@ def dragonfly_algorithm(function,validation, agents, lbd, ubd, iteration, param_
         pos = pos % 4
 
         # Prepare to next iteration, save data
-        values = function(pos)
+        values = function(pos,idx)
         function_cnt += agents
 
         # Iteration results
@@ -219,9 +218,10 @@ def main():
     dim = 14
     agents = 20
     iteration = 1000
+    idx = 0
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
-    dragonfly_algorithm(costCalculator, hard_constraints_validation, agents, lbd, upd, iteration)
+    dragonfly_algorithm(costCalculator,agents, lbd, upd, iteration,idx)
 
 
 if __name__ == "__main__":
