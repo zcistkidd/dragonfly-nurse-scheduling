@@ -25,14 +25,17 @@ df_staff = pd.read_csv("./data/SECTION_STAFF.csv")
 
 
 def costCalculator(df_nurse_schedule, idx):
-    number_of_days = len(df_nurse_schedule[0])
-    number_of_agent = len(df_nurse_schedule)
-    # cost matrix
-    nurse_cost = [[0 for i in range(number_of_days)] for j in range(number_of_agent)]
-    off_cost = shiftOffRequest(df_nurse_schedule, nurse_cost, 0)
-    on_cost = shiftOnRequest(df_nurse_schedule, nurse_cost, 0)
-    hard_constraints_validation(df_nurse_schedule, nurse_cost)
-    cost = convertNurseCost(nurse_cost)
+    res_on = shiftOnRequest(df_nurse_schedule, idx)
+    res_off = shiftOffRequest(df_nurse_schedule, idx)
+    res_shifts = shifts_cost(df_nurse_schedule)
+    total_shifts = total_shifts_cost(df_nurse_schedule, idx)
+    total_mins = total_minutes_cost(df_nurse_schedule, idx)
+    days_off_cost = days_off_validation(df_nurse_schedule, idx)
+    weekend = weekend_cost(df_nurse_schedule, idx)
+    con_off_cost = consective_off_cost(df_nurse_schedule, idx)
+    con_on_cost = consective_shifts_cost(df_nurse_schedule, idx)
+
+    cost = res_on + res_off + res_shifts + total_shifts + total_mins + days_off_cost + weekend + con_off_cost + con_on_cost
     return cost
 
 
@@ -75,24 +78,7 @@ def shiftOnRequest(df_nurse_schedule, nurse_idx):
     return shift_on_cost_each_vector
 
 
-def convertNurseCost(nurse_cost):
-    cost = []
 
-    for i in range(len(nurse_cost)):
-        temp = 0
-        for j in range(len(nurse_cost[0])):
-            temp = temp + nurse_cost[i][j]
-        cost.append(temp)
-
-    return cost
-
-
-def hard_constraints_validation(nurse_schedule, nurse_cost):
-    # nurse_schedule: matrix
-    # if days_off_validation(nurse_schedule) and staff_validation(nurse_schedule) and cover_validation(nurse_schedule):
-    days_off_validation(nurse_schedule, nurse_cost)
-    staff_validation(nurse_schedule, nurse_cost)
-    # cover_hard(nurse_schedule, nurse_cost)
 
 
 # Check if the approved day-off is scheduled with shift for each nurse
@@ -238,19 +224,18 @@ def main():
     # nurse schedule
     res = np.array([[0, 1, 0, 1, 3, 1, 3, 3, 3, 3, 3, 3, 3, 2],
                     [3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3]])
-    # cost = costCalculator(res, 0)
-    res_on = shiftOnRequest(res,0)
-    res_off = shiftOffRequest(res,0)
-    res_shifts = shifts_cost(res)
-    total_shifts = total_shifts_cost(res,0)
-    total_mins = total_minutes_cost(res,0)
-    days_off_cost = days_off_validation(res,0)
-    weekend = weekend_cost(res,0)
-    con_off_cost = consective_off_cost(res,0)
-    con_on_cost = consective_shifts_cost(res,0)
-    print(res_on)
-    print(res_off)
+    cost = costCalculator(res, 0)
+    # res_on = shiftOnRequest(res,0)
+    # res_off = shiftOffRequest(res,0)
+    # res_shifts = shifts_cost(res)
+    # total_shifts = total_shifts_cost(res,0)
+    # total_mins = total_minutes_cost(res,0)
+    # days_off_cost = days_off_validation(res,0)
+    # weekend = weekend_cost(res,0)
+    # con_off_cost = consective_off_cost(res,0)
+    # con_on_cost = consective_shifts_cost(res,0)
 
+    print(cost)
 
 
 if __name__ == "__main__":
