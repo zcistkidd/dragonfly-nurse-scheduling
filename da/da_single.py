@@ -220,7 +220,7 @@ def main():
     dim = 14
     agents = 20
     iteration = 10000
-    idx = 0
+    idx = 1
     lbd = 0 * np.ones(dim)
     upd = 3 * np.ones(dim)
     dragonfly_algorithm(costCalculator,agents, lbd, upd, iteration,idx)

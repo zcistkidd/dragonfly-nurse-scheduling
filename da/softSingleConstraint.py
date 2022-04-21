@@ -136,9 +136,9 @@ def total_shifts_cost(nurse_schdule, nurse_idx):
     count_1 = (nurse_schdule == 1).sum(axis = 1)
     count_2 = (nurse_schdule == 2).sum(axis = 1)
 
-    vol_0 = count_0 > MaxShifts_0[0]
-    vol_1 = count_1 > MaxShifts_1[0]
-    vol_2 = count_2 > MaxShifts_2[0]
+    vol_0 = count_0 > MaxShifts_0.to_numpy()
+    vol_1 = count_1 > MaxShifts_1.to_numpy()
+    vol_2 = count_2 > MaxShifts_2.to_numpy()
 
     cost_total_shifts += (vol_0 * 99999999 + vol_1 * 99999999 + vol_2 * 99999999)
 
@@ -157,7 +157,8 @@ def weekend_cost(nurse_schdule, nurse_idx,weekends = [5,6,12,13]):
         cur = nurse_schdule[:,weekend]
         cur_cnt =(cur < 3)
         total_cnt += cur_cnt
-    cost_weekend = total_cnt*99999999
+
+    cost_weekend = (total_cnt > MaxShifts)*99999999
 
     return cost_weekend
 
